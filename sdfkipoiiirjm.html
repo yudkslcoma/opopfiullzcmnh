@@ -330,6 +330,7 @@
       }
       let EXTRA_VALUE_V = 0x2000;
       let cfg_data = [
+        {id:"soKey", name:"解密key", placeholder:"打包的so文件加密key", type:"text", tag:"input", v:0x20},
         {id:"orientation", name:"横竖屏控制", placeholder:"默认横屏6,7为竖屏", type:"text", tag:"input", v:0x80000,tolower:true},
         {id:"skipUpdate", name:"跳过启动的网络请求", placeholder:"是否跳过每次启动的网络请求", type:"checkbox", tag:"input", v:0x40},
         {tag:"hr"},
