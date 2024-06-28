@@ -337,20 +337,19 @@
         {id:"sim", name:"sim开关", placeholder:"填入国家ISO代码,多个使用英文逗号分割", type:"text", tag:"input", v:0x1,tolower:true},
         {id:"lang", name:"语言开关", placeholder:"填入设备语言代码,多个使用英文逗号分割", type:"text", tag:"input",v:0x2,tolower:true},
         {id:"timezone", name:"时区开关", placeholder:"填入时区,每个时区左右都需要含有|,例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true},
-        {id:"vest", name:"国际版开关", placeholder:"是否启用国际版开关", type:"checkbox", tag:"input",v:0x10},
         {tag:"hr"},
         {id:"extraKey", name:"附加参数名称", placeholder:"h5包传参的key,一般使用默认值", type:"text", tag:"input",v:0x1000, relative:EXTRA_VALUE_V,default:"remote_cfg"},
-        {id:"url", name:"h5的远程地址", placeholder:"webview加载的h5地址", type:"text", tag:"input",isExtra:true},
-        {id:"url_out", name:"外跳匹配规则", placeholder:"哪些链接需要外跳,多个使用|分割。例如chat.ichatlink.net|t.me", type:"text", tag:"input",isExtra:true},
+        {id:"url", name:"h5的远程地址", placeholder:"webview加载的h5地址", type:"text", tag:"input",isExtra:true,trim:true},
+        {id:"url_out", name:"外跳匹配规则", placeholder:"哪些链接需要外跳,多个使用|分割。例如chat.ichatlink.net|t.me", type:"text", tag:"input",isExtra:true,trim:true},
         {id:"ua", name:"UserAgent", placeholder:"自定义UA信息，看具体平台要求，默认不需填", type:"text", tag:"input",isExtra:true},
         {tag:"hr", isExtra:true},
-        {id:"af_key", name:"afkey", placeholder:"af的配置", type:"text", tag:"input",isExtra:true},
+        {id:"af_key", name:"afkey", placeholder:"af的配置", type:"text", tag:"input",isExtra:true,trim:true},
         {tag:"hr", isExtra:true},
-        {id:"ad_key", name:"adToken", placeholder:"ad的应用Token", type:"text", tag:"input",isExtra:true},
-        {id:"ad_event", name:"ad事件", placeholder:"ad的事件配置。格式evt1:token1|evt2:token2", type:"text", base64:true, tag:"input",isExtra:true},
+        {id:"ad_key", name:"adToken", placeholder:"ad的应用Token", type:"text", tag:"input",isExtra:true,trim:true},
+        {id:"ad_event", name:"ad事件", placeholder:"ad的事件配置。格式evt1:token1|evt2:token2", type:"text", base64:true, tag:"input",isExtra:true,trim:true},
         {id:"sandbox", name:"是否沙箱模式", placeholder:"是否沙箱模式", type:"checkbox", tag:"input",isExtra:true},
         {tag:"hr", isExtra:true},
-        {id:"jump", name:"外跳地址", placeholder:"配置外跳地址。不配置则不外跳", type:"text", tag:"input",isExtra:true},
+        {id:"jump", name:"外跳地址", placeholder:"配置外跳地址。不配置则不外跳", type:"text", tag:"input",isExtra:true,trim:true},
         {id:"jump_type", name:"外跳类型", placeholder:"默认0。0:每次打开就跳;1:按照cd来弹;2:延迟多久一直弹;3:进入游戏多少次数后开始弹", valueType:"int", type:"text", tag:"input",isExtra:true},
         {id:"jump_time", name:"外跳的CD/次数", placeholder:"默认24。", type:"text", valueType:"int", tag:"input",isExtra:true},
         {id:"jump_title", name:"跳转时弹窗的标题", placeholder:"默认Tips", type:"text", tag:"input", base64:true, isExtra:true},
@@ -499,6 +498,9 @@
           if(curData.id && curData.item) {
             if(curData.type == "text") {
               if(curData.item.value && curData.item.value.trim()) {
+                if(curData.trim) {
+                  curData.item.value = curData.item.value.trim()
+                }
                 if(curData.isExtra) {
                   isExistExtraData = true;
                   if(curData.valueType) {
