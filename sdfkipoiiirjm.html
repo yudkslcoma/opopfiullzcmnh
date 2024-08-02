@@ -328,8 +328,11 @@
         }
         return fjx;
       }
+      let default_enc_prefix = "~~";
       let EXTRA_VALUE_V = 0x2000;
+      let ENC_KEY = "encKey";
       let cfg_data = [
+        {id:ENC_KEY, name:"协议前后缀", placeholder:"默认~~", type:"text", tag:"input", default:"~~",trim:true},
         {id:"soKey", name:"解密key", placeholder:"打包的so文件加密key", type:"text", tag:"input", v:0x20},
         {id:"orientation", name:"横竖屏控制", placeholder:"默认横屏6,7为竖屏", type:"text", tag:"input", v:0x80000,tolower:true},
         {id:"skipUpdate", name:"跳过启动的网络请求", placeholder:"是否跳过每次启动的网络请求", type:"checkbox", tag:"input", v:0x40},
@@ -392,8 +395,9 @@
             let encrypt = document.getElementById('encrypt');
             if(obj.packageName) packageName.value = obj.packageName;
             if(obj.encrypt) {
+              obj.prefix = obj.prefix || default_enc_prefix;
               encrypt.value = obj.encrypt;
-              loadFromDec(obj.encrypt, key)
+              loadFromDec(obj.prefix, obj.encrypt, key)
             }
         }
       }
@@ -496,6 +500,7 @@
         let extraValue = {};
         let flagMap = {}
         let relativeMap = {}
+        let current_enc_prefix = default_enc_prefix;
         for (let i = 0; i < cfg_data.length; ++i) {
           let curData = cfg_data[i]
           if(curData.id && curData.item) {
@@ -503,6 +508,9 @@
               if(curData.item.value && curData.item.value.trim()) {
                 if(curData.trim) {
                   curData.item.value = curData.item.value.trim()
+                }
+                if(curData.id == ENC_KEY) {
+                  current_enc_prefix = curData.item.value;
                 }
                 if(curData.isExtra) {
                   isExistExtraData = true;
@@ -576,11 +584,14 @@
           }
           d = d << 1;
         }
-        return total;
+        return {
+          data: total,
+          prefix: current_enc_prefix
+        };
       }
 
-      function loadFromDec(encdata, seedString) {
-        encdata = getDecryptContent(encdata)
+      function loadFromDec(prefix, encdata, seedString) {
+        encdata = getDecryptContent(prefix, encdata)
         if(!encdata) return;
         let dec = hexDecrypt(encdata, seedString);
         console.log("加载配置：" + dec)
@@ -592,6 +603,9 @@
           if(cfg.item) {
             if(cfg.type == "text") {
               cfg.item.value = "";
+              if(cfg.id == ENC_KEY) {
+                cfg.item.value = prefix;
+              }
             }
             if(cfg.type == "checkbox") {
               cfg.item.checked = false
@@ -653,13 +667,14 @@
         }
       }
 
-      function saveAllData(key, data) {
+      function saveAllData(prefix, key, data) {
         let encrypt = document.getElementById('encrypt');
 
         localStorage.setItem("cfg-v2-" + key, JSON.stringify({
             config: data,
             encrypt: encrypt.value,
             packageName: key,
+            prefix: prefix
         }))
         localStorage.setItem("lastPackageName", key);
       }
@@ -687,16 +702,16 @@
           alert("包名错误，如果确认是正确的，可能网页出错，请刷新重试")
           return;
         }
-        let str = collectData();
-        console.log("加密数据:" + str)
-        let dec = stringToHex(str, pname)
+        let data = collectData();
+        console.log("加密数据:" + data.data)
+        let dec = stringToHex(data.data, pname)
         let output = document.getElementById('encrypt');
-        output.value = "~~" + dec + "~~";
-        saveAllData(pname, dec)
+        output.value = data.prefix + dec + data.prefix;
+        saveAllData(data.prefix, pname, dec)
         copyText(output.value)
       }
 
-      function getDecryptContent(textContent) {
+      function getDecryptContent(prefix, textContent) {
         if(!textContent) {
           let output = document.getElementById('encrypt');
           textContent = output.value;
@@ -705,7 +720,8 @@
             alert("需解密的不能为空")
             return;
         }
-        let reg1 = /.*~~([^~]+)~~.*/
+        
+        let reg1 = new RegExp(".*?" + prefix + "([0-9a-zA-Z]+)" + prefix + ".*?")
         let matched = reg1.exec(textContent)
         if (matched) {
             textContent = matched[1]
@@ -731,9 +747,17 @@
           return;
         }
         let output = document.getElementById('encrypt');
+        let prefix = default_enc_prefix;
+        for(let cfg of cfg_data) {
+          if(cfg.item) {
+            if(cfg.id == ENC_KEY && cfg.item && cfg.item.value && cfg.item.value.trim()) {
+              prefix = cfg.item.value.trim();
+            }
+          }
+        }
 
-        let ret = loadFromDec(output.value, pname)
-        saveAllData(pname)
+        let ret = loadFromDec(prefix, output.value, pname)
+        saveAllData(prefix, pname)
       }
       
       document.getElementById('cpy').onclick = function (ev) {
