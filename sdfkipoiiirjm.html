@@ -342,7 +342,8 @@
         {id:"timezone", name:"时区开关", placeholder:"填入时区,每个时区左右都需要含有|,例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true,trim:true},
         {id:"ip", name:"ip开关", placeholder:"填入国家缩写,多个国家使用|分割,例如HK|IN", type:"text", tag:"input",v:0x8,tolower:true,trim:true},
         {id:"root", name:"root", placeholder:"是否检测root", type:"checkbox", tag:"input",v:0x10,default:true},
-        {id:"vpn", name:"vpn", placeholder:"是否检测vpn", type:"checkbox", tag:"input",v:0x8000000},
+        {id:"vpn", name:"vpn", placeholder:"是否检测vpn", type:"checkbox", tag:"input",v:0x10000},
+        {id:"ip_api", name:"ip的api接口", placeholder:"配置ip的api接口，可不配置", type:"text", tag:"input",v:0x8000},
         {tag:"hr"},
         {id:"extraKey", name:"附加参数名称", placeholder:"h5包传参的key,一般使用默认值", type:"text", tag:"input",v:0x1000, relative:EXTRA_VALUE_V,default:"remote_cfg"},
         {id:"url", name:"h5的远程地址", placeholder:"webview加载的h5地址", type:"text", tag:"input",isExtra:true,trim:true},
@@ -378,9 +379,6 @@
         {id:"remoteBG", name:"下载时的背景图", placeholder:"配置下载界面的背景图", type:"text", tag:"input",v:0x400},
         {id:"fontColor", name:"下载时的字体颜色", placeholder:"配置下载界面的字体颜色", type:"text", tag:"input",v:0x800},
         {id:"d_size", name:"下载时的线程数", placeholder:"配置下载界面的线程数量，默认为1", type:"text", tag:"input",v:0x40000},
-        {id:"d_title", name:"下载出错的标题", placeholder:"配置下载出错的标题", type:"text", tag:"input",v:0x8000},
-        {id:"d_msg", name:"下载出错的消息", placeholder:"配置下载出错的消息", type:"text", tag:"input",v:0x10000},
-        {id:"d_btn", name:"下载出错的按钮", placeholder:"配置下载界面的按钮文字", type:"text", tag:"input",v:0x20000},
       ]
 
       function loadAfterSelect(key) {
