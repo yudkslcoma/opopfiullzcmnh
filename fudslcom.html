@@ -129,7 +129,7 @@
         </label>
         <label>
           <span>生成WG下载参数</span>
-          <input id="wgbaseUrl" type="text" placeholder="输入URL的值。">
+          <input id="wgbaseUrl" type="text" placeholder="输入URL的值,可不填,默认取上方url的值。">
           <button id="getWGDownloadArgs" style="display: inline;">复制参数</button>
         </label>
       </div>
@@ -813,6 +813,9 @@
         var packageName = document.getElementById("packageName");
         if (packageName.value) {
             var wgbaseUrl = document.getElementById("wgbaseUrl").value;
+            if(!wgbaseUrl) {
+                wgbaseUrl = document.getElementById("url").value;
+            }
             if(wgbaseUrl) {
                 if(wgbaseUrl.indexOf("?") >= 0) {
                     wgbaseUrl = wgbaseUrl + "&";
