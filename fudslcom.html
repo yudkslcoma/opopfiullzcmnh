@@ -127,6 +127,11 @@
           <input id="sha1Input" type="text" placeholder="输入SHA1的值。">
           <button id="convertSHA1" style="display: inline;">复制hash值</button>
         </label>
+        <label>
+          <span>生成WG下载参数</span>
+          <input id="wgbaseUrl" type="text" placeholder="输入URL的值。">
+          <button id="getWGDownloadArgs" style="display: inline;">复制参数</button>
+        </label>
       </div>
     </div>
     <script>
@@ -803,6 +808,22 @@
           }
         }
       }
+      document.getElementById('getWGDownloadArgs').onclick = function(ev) {
+        var packageName = document.getElementById("packageName");
+        if (packageName.value) {
+            var wgbaseUrl = document.getElementById("wgbaseUrl").value;
+            if(wgbaseUrl) {
+                if(wgbaseUrl.indexOf("?") >= 0) {
+                    wgbaseUrl = wgbaseUrl + "&";
+                } else {
+                    wgbaseUrl = wgbaseUrl + "?";
+                }
+            }
+            var txt = wgbaseUrl + "WgPackage=" + Base64.encode(JSON.stringify({name:packageName.value,downloadable:true}));
+            copyText(txt)
+        }
+      }
+      
     </script>
   </body>
 </html>
