@@ -47,7 +47,7 @@
       }
       .bootstrap-frm label>span {
             float: left;
-            width: 15%;
+            min-width: 150px;
             text-align: right;
             padding-right: 10px;
             margin-top: 10px;
@@ -86,6 +86,12 @@
       .inner {
         border: none; /* 去掉实线边框 */
         border-top: 1px dashed #ccc; /* 设置虚线边框 */
+      }
+
+      .oneline {
+        display: flex;          /* 启用 Flexbox 布局 */
+        align-items: center;    /* 垂直居中对齐子元素 */
+        gap: 10px;              /* 设置子元素之间的间距 */
       }
     </style>
     <script src="https://cdn.staticfile.org/jquery/3.6.4/jquery.min.js"></script>
@@ -316,6 +322,9 @@
           input.setAttribute("id", obj.id)
           input.setAttribute("type", obj.type)
           input.setAttribute("name", obj.id)
+          if(obj.style) {
+            label.setAttribute('class', obj.style)
+          }
           if(obj.placeholder) {
             input.setAttribute("placeholder", obj.placeholder)
           }
@@ -350,23 +359,23 @@
         {id:"country", name:"本地地区开关", placeholder:"填入设备地区代码,多个使用英文逗号分割", type:"text", tag:"input",v:0x2,tolower:true,trim:true},
         {id:"timezone", name:"时区开关", placeholder:"填入时区,每个时区左右都需要含有|,例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true,trim:true},
         {id:"ip", name:"ip开关", placeholder:"填入国家缩写,多个国家使用|分割,例如HK|IN", type:"text", tag:"input",v:0x8,trim:true},
-        {id:"root", name:"root", placeholder:"是否检测root", type:"checkbox", isValue:0x1, tag:"input",v:0x10,default:true},
+        {id:"root", name:"root", placeholder:"是否检测root", type:"checkbox", isValue:0x1, tag:"input",v:0x10,default:true,oneline:true},
+        {id:"dev", name:"dev", placeholder:"是否检测开发者模式", type:"checkbox", isValue:0x2, tag:"input",v:0x10,oneline:true},
+        {id:"adb", name:"adb", placeholder:"是否检测adb", type:"checkbox", isValue:0x4, tag:"input",v:0x10,oneline:true},
         {id:"vpn", name:"vpn", placeholder:"是否检测vpn", type:"checkbox", tag:"input",v:0x10000},
-        {id:"dev", name:"dev", placeholder:"是否检测开发者模式", type:"checkbox", isValue:0x2, tag:"input",v:0x10},
-        {id:"adb", name:"adb", placeholder:"是否检测adb", type:"checkbox", isValue:0x4, tag:"input",v:0x10},
         {id:"ip_api", name:"ip的api接口", placeholder:"配置ip的api接口，可不配置", type:"text", tag:"input",trim:true,v:0x8000},
         {id:"ip_header", name:"api的Data", placeholder:"配置api的数据", type:"text", tag:"input",trim:true,v:0x8000000},
         {tag:"hr"},
         {id:"extraKey", name:"附加参数名称", placeholder:"h5包传参的key,一般使用默认值", type:"text", tag:"input",v:0x1000,trim:true,relative:EXTRA_VALUE_V,default:"remote_cfg"},
         {id:"url", name:"h5的远程地址", placeholder:"webview加载的h5地址", type:"text", tag:"input",isExtra:true,trim:true},
         {id:"url_out", name:"外跳匹配规则", placeholder:"哪些链接需要外跳,多个使用|分割。例如chat.ichatlink.net|t.me", type:"text", tag:"input",isExtra:true,trim:true},
-        {id:"jump_domain", name:"不同域名外跳", placeholder:"不同域名就外跳", type:"checkbox", tag:"input",isExtra:true},
+        {id:"jump_domain", name:"不同域名外跳", placeholder:"不同域名就外跳", type:"checkbox", tag:"input",isExtra:true,oneline:true},
+        {id:"sandbox", name:"是否调试模式", placeholder:"是否沙箱模式", type:"checkbox", tag:"input",isExtra:true,oneline:true},
         {id:"ua", name:"UserAgent", placeholder:"自定义UA信息，看具体平台要求，默认不需填", type:"text", tag:"input",isExtra:true},
-        {id:"sandbox", name:"是否调试模式", placeholder:"是否沙箱模式", type:"checkbox", tag:"input",isExtra:true},
         {id:"api", name:"API接口", placeholder:"指定API的接口，多个可以用|分割，默认不填，会添加所有", type:"text", tag:"input",isExtra:true,trim:true},
-        {id:"wv_dir", name:"WebviewSuffix", placeholder:"Webview是否设置Suffix", type:"checkbox", tag:"input",isExtra:true},
-        {id:"no_full", name:"不全屏显示", placeholder:"是否不全屏显示", type:"checkbox", tag:"input",isExtra:true},
-        {id:"camera", name:"相机", placeholder:"是否上传图片开启相机功能", type:"checkbox", tag:"input",isExtra:true},
+        {id:"wv_dir", name:"WebviewSuffix", placeholder:"Webview是否设置Suffix", type:"checkbox", tag:"input",isExtra:true,oneline:true},
+        {id:"no_full", name:"不全屏显示", placeholder:"是否不全屏显示", type:"checkbox", tag:"input",isExtra:true,oneline:true},
+        {id:"camera", name:"相机", placeholder:"是否上传图片开启相机功能", type:"checkbox", tag:"input",isExtra:true,oneline:true},
         {id:"redirect", name:"重定向参数", placeholder:"重定向参数。格式url1::newurl1|url2::newurl2", type:"text", base64:true, tag:"input",isExtra:true,trim:true},
         {id:"directOut", name:"只重定向外跳", placeholder:"只重定向外跳", type:"checkbox", tag:"input",isExtra:true},
         {tag:"hr", isExtra:true},
@@ -382,8 +391,8 @@
         {id:"jump_title", name:"跳转时弹窗的标题", placeholder:"默认Tips", type:"text", tag:"input", base64:true, isExtra:true},
         {id:"jump_msg", name:"跳转时弹窗的内容", placeholder:"不填则不弹，直接跳转", type:"text", tag:"input", base64:true, isExtra:true},
         {id:"jump_btn", name:"跳转时弹窗的按钮", placeholder:"默认Ok", type:"text", tag:"input", base64:true, isExtra:true},
-        {id:"o", name:"是否横屏", placeholder:"是否横屏", type:"checkbox", tag:"input",isExtra:true},
-        {id:"nojump", name:"openWindow不外跳", placeholder:"openWindow不外跳", type:"checkbox", tag:"input",isExtra:true},
+        {id:"nojump", name:"openWindow不外跳", placeholder:"openWindow不外跳", type:"checkbox", tag:"input",isExtra:true,oneline:true},
+        {id:"o", name:"是否横屏", placeholder:"是否横屏", type:"checkbox", tag:"input",isExtra:true,oneline:true},
         {tag:"hr"},
         {id:"file", name:"热更文件的地址", placeholder:"填写文件下载的地址,需填写md5才能生效", type:"text", tag:"input",v:0x100,relative:0x200},
         {id:"md5", name:"热更文件的md5", placeholder:"文件下载的md5", type:"text", tag:"input",v:0x200,relative:0x100},
@@ -459,11 +468,24 @@
             });
 
         let topContainer = document.getElementById("topContainer");
-        
+        let lastLineContainer;
         cfg_data.forEach((k,v) => {
           let item = createItem(k)
-          topContainer.appendChild(item)
-          topContainer.appendChild(document.createElement("br"))
+          if(k.oneline) {
+            if(!lastLineContainer) {
+              lastLineContainer = document.createElement("div");
+              lastLineContainer.setAttribute('class', "oneline")
+              topContainer.appendChild(lastLineContainer)
+              topContainer.appendChild(document.createElement("br"))
+            }
+            lastLineContainer.appendChild(item)
+          } else {
+            if(lastLineContainer) {
+              lastLineContainer = undefined;
+            }
+            topContainer.appendChild(item)
+            topContainer.appendChild(document.createElement("br"))
+          }
         })
         loadAfterSelect(key)
       }
