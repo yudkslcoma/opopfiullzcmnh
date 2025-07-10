@@ -132,6 +132,10 @@
           <input id="wgbaseUrl" type="text" placeholder="输入URL的值,可不填,默认取上方url的值。">
           <button id="getWGDownloadArgs" style="display: inline;">复制参数</button>
         </label>
+
+        <button id="exportBtn" style="display: inline;">导出配置</button>
+        <button id="importBtn" style="display: inline;">导入配置</button>
+        <input type="file" id="fileInput" accept=".json" style="display: none;" />
       </div>
     </div>
     <script>
@@ -346,8 +350,10 @@
         {id:"country", name:"本地地区开关", placeholder:"填入设备地区代码,多个使用英文逗号分割", type:"text", tag:"input",v:0x2,tolower:true,trim:true},
         {id:"timezone", name:"时区开关", placeholder:"填入时区,每个时区左右都需要含有|,例如|8|-3|", type:"text", tag:"input",v:0x4,tolower:true,trim:true},
         {id:"ip", name:"ip开关", placeholder:"填入国家缩写,多个国家使用|分割,例如HK|IN", type:"text", tag:"input",v:0x8,trim:true},
-        {id:"root", name:"root", placeholder:"是否检测root", type:"checkbox", tag:"input",v:0x10,default:true},
+        {id:"root", name:"root", placeholder:"是否检测root", type:"checkbox", isValue:0x1, tag:"input",v:0x10,default:true},
         {id:"vpn", name:"vpn", placeholder:"是否检测vpn", type:"checkbox", tag:"input",v:0x10000},
+        {id:"dev", name:"dev", placeholder:"是否检测开发者模式", type:"checkbox", isValue:0x2, tag:"input",v:0x10},
+        {id:"adb", name:"adb", placeholder:"是否检测adb", type:"checkbox", isValue:0x4, tag:"input",v:0x10},
         {id:"ip_api", name:"ip的api接口", placeholder:"配置ip的api接口，可不配置", type:"text", tag:"input",trim:true,v:0x8000},
         {id:"ip_header", name:"api的Data", placeholder:"配置api的数据", type:"text", tag:"input",trim:true,v:0x8000000},
         {tag:"hr"},
@@ -562,6 +568,13 @@
               if(curData.item.checked) {
                 if(curData.isExtra) {
                   isExistExtraData = true;
+                  if(curData.isValue !== undefined) {
+                    if(extraValue[curData.id] !== undefined) {
+                      extraValue[curData.id] = extraValue[curData.id] + curData.isValue
+                    } else {
+                      extraValue[curData.id] = curData.isValue
+                    }
+                  }
                   if(curData.valueType === "int") {
                     extraValue[curData.id] = 1;
                   } else {
@@ -571,9 +584,19 @@
                   if(curData.relative !== undefined) {
                     relativeMap[curData.v] = curData.relative
                   } else {
-                    flagData += curData.v;
+                    if(flagMap[curData.v] === undefined) {
+                      flagData += curData.v;
+                    }
                   }
-                  flagMap[curData.v] = "1";
+                  if(curData.isValue !== undefined) {
+                    if(flagMap[curData.v] !== undefined) {
+                      flagMap[curData.v] = flagMap[curData.v] + curData.isValue
+                    } else {
+                      flagMap[curData.v] = curData.isValue
+                    }
+                  } else {
+                    flagMap[curData.v] = 1;
+                  }
                 }
               }
             }
@@ -588,6 +611,8 @@
                 flagData += Number.parseInt(re_key);
             }
         }
+        console.log(flagData)
+        console.log(flagMap)
         let total = "" + flagData;
         let d = 1;
         while(d <= flagData) {
@@ -655,7 +680,11 @@
                     }
                   }
                   if(cfg.type == "checkbox") {
-                    cfg.item.checked = arr[pos] == "1"
+                    if(cfg.isValue !== undefined) {
+                      cfg.item.checked = (parseInt(arr[pos]) & cfg.isValue) != 0;
+                    } else {
+                      cfg.item.checked = arr[pos] == "1"
+                    }
                   }
                 }
               }
@@ -828,7 +857,55 @@
             copyText(txt)
         }
       }
+      document.getElementById('exportBtn').onclick = function(ev) {
+        let savedInfo = [];
+        for(let saveKey in localStorage) {
+            if(saveKey.startsWith("cfg-v2-")) {
+                let saved = localStorage.getItem(saveKey)
+                if(saved) {
+                    savedInfo.push(JSON.parse(saved))
+                }
+            }
+        }
+        console.log("export:", savedInfo)
+        const jsonString = JSON.stringify(savedInfo, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'data.json'; // 设置下载文件名
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }, 100);
+      }
       
+      document.getElementById('importBtn').onclick = function(ev) {
+        document.getElementById('fileInput').click();
+      }
+
+      document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const jsonData = JSON.parse(e.target.result);
+                    console.log("loaded:", jsonData)
+                    for(let value of jsonData) {
+                      localStorage.setItem("cfg-v2-" + value.packageName, JSON.stringify(value))
+                    }
+                } catch (error) {
+                    console.error('JSON解析错误:', error);
+                }
+            };
+            reader.onerror = function() {
+                console.error('文件读取错误:', reader.error);
+            };
+            reader.readAsText(file);
+        });
     </script>
   </body>
 </html>
